@@ -7,16 +7,14 @@ namespace Code
     {
         public static IEnumerable<int> ToNumList(this string s)
         {
-            var result = new List<int>();
-            if (!string.IsNullOrEmpty(s)) result.AddRange(s.Split(',').SelectMany(ParseRange));
-            return result;
+            return !string.IsNullOrEmpty(s) ? s.Split(',').SelectMany(ParseRange) : Enumerable.Empty<int>();
         }
 
         private static IEnumerable<int> ParseRange(string r)
         {
-            var ps = r.Split('-');
-            var a = int.Parse(ps[0]);
-            var b = ps.Length == 2 ? int.Parse(ps[1]) : a;
+            var ns = r.Split('-').Select(int.Parse).ToArray();
+            var a = ns[0];
+            var b = ns.Length > 1 ? ns[1] : a;
             return Enumerable.Range(a, b - a + 1);
         }
     }
