@@ -5,7 +5,7 @@ The idea of this little project is to come up with some C# code that takes a str
 
 ## Haskell version
 
-I originally came up with the following Haskell function (I am fairly new to Haskell so this probably isn't great code) and wanted to see what the equivalent C# would look like.
+I originally came up with the following Haskell function (I am fairly new to Haskell so this probably isn't great code) and wanted to see what the equivalent C# code would look like.
 
 ```Haskell
 import Data.List.Split (wordsBy)
