@@ -24,6 +24,27 @@ main = do
 	putStrLn $ show $ stringToNumList input
 ```
 
+### Update
+
+A slight simplification of the above code using <code>(>>=)</code> for lists instead of <code>foldl</code>. The list concatenation now occurs inside <code>(>>=)</code>.
+
+```Haskell
+import Data.List.Split (wordsBy)
+
+stringToNumList :: String -> [Int]
+stringToNumList s =
+	wordsBy (==',') s >>= \w ->
+		case map read $ wordsBy (=='-') w of
+			a:b:[] -> [a..b]
+			a:[] -> [a]		
+
+main :: IO ()
+main = do
+	let input = "1-12,14,16"
+	putStrLn $ show $ stringToNumList input
+```
+
+
 ## Links
 
 * [Code Golf](http://en.wikipedia.org/wiki/Code_golf)
