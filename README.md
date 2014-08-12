@@ -24,9 +24,9 @@ main = do
 	putStrLn $ show $ stringToNumList input
 ```
 
-### Update
+### Update V1
 
-A slight simplification of the above code using <code>(>>=)</code> for lists instead of <code>foldl</code>. The list concatenation now occurs inside <code>(>>=)</code>.
+A slight simplification of my original Haskell code using <code>(>>=)</code> for lists instead of <code>foldl</code>. The list concatenation now occurs inside <code>(>>=)</code>.
 
 ```Haskell
 import Data.List.Split (wordsBy)
@@ -36,7 +36,7 @@ stringToNumList s =
 	wordsBy (==',') s >>= \w ->
 		case map read $ wordsBy (=='-') w of
 			a:b:[] -> [a..b]
-			a:[] -> [a]		
+			a:[] -> return a
 
 main :: IO ()
 main = do
