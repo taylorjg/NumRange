@@ -44,6 +44,25 @@ main = do
 	putStrLn $ show $ stringToNumList input
 ```
 
+### Update V2
+
+Tweak to the pattern matching in the case expression.
+
+```Haskell
+import Data.List.Split (wordsBy)
+
+stringToNumList :: String -> [Int]
+stringToNumList s =
+    wordsBy (==',') s >>= \w ->
+        case map read $ wordsBy (=='-') w of
+            [a, b] -> [a..b]
+            [a] -> [a]
+
+main :: IO ()
+main = do
+    let input = "1-12,14,16"
+    putStrLn $ show $ stringToNumList input
+```
 
 ## Links
 
