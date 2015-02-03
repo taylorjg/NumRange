@@ -1,10 +1,10 @@
 ﻿using Code;
 using NUnit.Framework;
 
-namespace Tests
+namespace UnitTests
 {
     [TestFixture]
-    internal class StringExtensionTests
+    internal class NumRangeUnitTests
     {
         [Test]
         public void NullStringReturnsEmptyList()

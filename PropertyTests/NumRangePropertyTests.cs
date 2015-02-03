@@ -12,14 +12,19 @@ namespace PropertyTests
     [TestFixture]
     public class NumRangePropertyTests
     {
-        private static readonly Configuration Configuration = Config.VerboseThrowOnFailure.ToConfiguration();
+        private static readonly Configuration Configuration =
+            Config.VerboseThrowOnFailure
+                .ToConfiguration()
+                .WithMaxTest(500)
+                .WithEndSize(200);
+
         private const string Separator = ",";
 
         [Test]
-        public void ToNumListTest1()
+        public void ToNumListPropertyBasedTest1()
         {
             Spec
-                .For(GenNumRange1, tuples =>
+                .For(GenNumRangeAny, tuples =>
                 {
                     var inputString = FormatInputStringFromTuples(tuples);
                     var expected = ExpandTuples(tuples);
@@ -30,10 +35,10 @@ namespace PropertyTests
         }
 
         [Test]
-        public void ToNumListTest2()
+        public void ToNumListPropertyBasedTest2()
         {
             Spec
-                .For(GenNumRange2, tuples =>
+                .For(GenNumRangeMixOfSingleNumbersAndRanges, tuples =>
                 {
                     var inputString = FormatInputStringFromTuples(tuples);
                     var expected = ExpandTuples(tuples);
@@ -63,16 +68,7 @@ namespace PropertyTests
             }));
         }
 
-        private static Gen<Tuple<int, int>> GenTupleSame
-        {
-            get
-            {
-                return from n1 in Gen.choose(1, 50)
-                       select Tuple.Create(n1, n1);
-            }
-        }
-
-        private static Gen<Tuple<int, int>> GenTupleDifferent
+        private static Gen<Tuple<int, int>> GenTupleAny
         {
             get
             {
@@ -82,21 +78,68 @@ namespace PropertyTests
             }
         }
 
-        private static Gen<List<Tuple<int, int>>> GenNumRange1
+        private static Gen<List<Tuple<int, int>>> GenNumRangeAny
         {
-            get { return GenTupleDifferent.MakeList(); }
+            get
+            {
+                return GenTupleAny
+                    .MakeList()
+                    .Select(OrderTuples)
+                    .Where(TuplesDoNotOverlap);
+            }
         }
 
-        private static Gen<List<Tuple<int, int>>> GenNumRange2
+        private static Gen<Tuple<int, int>> GenTupleSingleNumber
+        {
+            get
+            {
+                return from n1 in Gen.choose(1, 50)
+                       select Tuple.Create(n1, n1);
+            }
+        }
+
+        private static Gen<Tuple<int, int>> GenTupleRange
+        {
+            get
+            {
+                return from n1 in Gen.choose(1, 50)
+                       from n2 in Gen.choose(n1, 50)
+                       where n1 != n2
+                       select Tuple.Create(n1, n2);
+            }
+        }
+
+        private static Gen<List<Tuple<int, int>>> GenNumRangeMixOfSingleNumbersAndRanges
         {
             get
             {
                 return Any
                     .WeighedGeneratorIn(
-                        new WeightAndValue<Gen<Tuple<int, int>>>(40, GenTupleSame),
-                        new WeightAndValue<Gen<Tuple<int, int>>>(60, GenTupleDifferent))
-                    .MakeList();
+                        new WeightAndValue<Gen<Tuple<int, int>>>(60, GenTupleSingleNumber),
+                        new WeightAndValue<Gen<Tuple<int, int>>>(40, GenTupleRange))
+                    .MakeList()
+                    .Select(OrderTuples)
+                    .Where(TuplesDoNotOverlap);
             }
+        }
+
+        private static List<Tuple<int, int>> OrderTuples(List<Tuple<int, int>> tuples)
+        {
+            return tuples.OrderBy(t => t.Item1).ToList();
+        }
+
+        private static bool TuplesDoNotOverlap(List<Tuple<int, int>> tuples)
+        {
+            Func<Tuple<int, int>, Tuple<int, int>, bool> pairOfTuplesDoNotOverlap = (t1, t2) =>
+            {
+                System.Diagnostics.Debug.Assert(t1.Item2 >= t1.Item1);
+                System.Diagnostics.Debug.Assert(t2.Item2 >= t2.Item1);
+                System.Diagnostics.Debug.Assert(t2.Item1 >= t1.Item1);
+                return t2.Item1 > t1.Item2;
+            };
+
+            if (tuples.Count < 2) return true;
+            return pairOfTuplesDoNotOverlap(tuples[0], tuples[1]) && TuplesDoNotOverlap(tuples.Skip(1).ToList());
         }
     }
 }
