@@ -38,7 +38,7 @@ namespace PropertyTests
         public void ToNumListPropertyBasedTest2()
         {
             Spec
-                .For(GenNumRangeMixOfSingleNumbersAndRanges, tuples =>
+                .For(GenNumRangeOrderedAndNonOverlapping, tuples =>
                 {
                     var inputString = FormatInputStringFromTuples(tuples);
                     var expected = ExpandTuples(tuples);
@@ -80,13 +80,7 @@ namespace PropertyTests
 
         private static Gen<List<Tuple<int, int>>> GenNumRangeAny
         {
-            get
-            {
-                return GenTupleAny
-                    .MakeList()
-                    .Select(OrderTuples)
-                    .Where(TuplesDoNotOverlap);
-            }
+            get { return GenTupleAny.MakeList(); }
         }
 
         private static Gen<Tuple<int, int>> GenTupleSingleNumber
@@ -109,7 +103,7 @@ namespace PropertyTests
             }
         }
 
-        private static Gen<List<Tuple<int, int>>> GenNumRangeMixOfSingleNumbersAndRanges
+        private static Gen<List<Tuple<int, int>>> GenNumRangeOrderedAndNonOverlapping
         {
             get
             {
